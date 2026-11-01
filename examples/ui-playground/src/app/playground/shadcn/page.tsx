@@ -41,6 +41,9 @@ export default function ComboboxPage() {
         <Typography type="h1" weight="bold">
           Shadcn components
         </Typography>
+        <a href="/playground/shadcn/localization" className="text-text-brand underline">
+          Thai / English localization examples
+        </a>
         <hr />
         <Typography type="h2" weight="bold" id="badge">
           Badge
