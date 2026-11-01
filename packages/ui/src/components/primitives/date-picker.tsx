@@ -36,10 +36,12 @@ export function DatePickerTrigger({
   value,
   children,
   formatDate,
+  placeholder,
   ...props
 }: {
   asChild?: boolean
   value?: Date
+  placeholder?: React.ReactNode
   formatDate?: (value: Date | undefined) => string | number | undefined
 } & Omit<React.ComponentPropsWithRef<typeof PopoverTrigger>, 'value'>) {
   const { onOpenChange } = useDatePickerProvider()
@@ -69,7 +71,7 @@ export function DatePickerTrigger({
           )}
         >
           <CalendarBlankIcon />
-          <Typography>{displayValue}</Typography>
+          <Typography>{displayValue ?? placeholder}</Typography>
         </Button>
       )}
     </PopoverTrigger>

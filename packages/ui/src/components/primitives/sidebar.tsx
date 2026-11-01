@@ -31,6 +31,7 @@ type SidebarContextProps = {
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
+  mobileTriggerRef: React.RefObject<HTMLElement | null>
   toggleSidebar: () => void
 }
 
@@ -59,6 +60,7 @@ function SidebarProvider({
   onOpenChange?: (open: boolean) => void
 }) {
   const initialRenderRef = React.useRef(true)
+  const mobileTriggerRef = React.useRef<HTMLElement>(null)
   const isMobile = useMediaQuery('(max-width: 600px)')
   const [openMobile, setOpenMobile] = React.useState(false)
 
@@ -88,13 +90,16 @@ function SidebarProvider({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
+        if (isMobile && !openMobile && event.target instanceof HTMLElement) {
+          mobileTriggerRef.current = event.target
+        }
         toggleSidebar()
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [toggleSidebar])
+  }, [toggleSidebar, isMobile, openMobile])
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
@@ -109,6 +114,7 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      mobileTriggerRef,
     }),
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
   )
@@ -142,6 +148,7 @@ function Sidebar({
   side = 'left',
   variant = 'sidebar',
   collapsible = 'offcanvas',
+  labels,
   className,
   children,
   ...props
@@ -149,8 +156,9 @@ function Sidebar({
   side?: 'left' | 'right'
   variant?: 'sidebar' | 'floating' | 'inset'
   collapsible?: 'offcanvas' | 'icon' | 'none'
+  labels?: { mobileTitle?: string; mobileDescription?: string; mobileClose?: string }
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const { isMobile, state, openMobile, setOpenMobile, mobileTriggerRef } = useSidebar()
 
   if (collapsible === 'none') {
     return (
@@ -174,6 +182,14 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
+          closeLabel={labels?.mobileClose}
+          onCloseAutoFocus={(event) => {
+            if (mobileTriggerRef.current?.isConnected) {
+              event.preventDefault()
+              mobileTriggerRef.current.focus()
+              mobileTriggerRef.current = null
+            }
+          }}
           className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
           style={
             {
@@ -183,8 +199,10 @@ function Sidebar({
           side={side}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+            <SheetTitle>{labels?.mobileTitle ?? 'Sidebar'}</SheetTitle>
+            <SheetDescription>
+              {labels?.mobileDescription ?? 'Displays the mobile sidebar.'}
+            </SheetDescription>
           </SheetHeader>
           <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
@@ -240,8 +258,13 @@ function Sidebar({
   )
 }
 
-function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+function SidebarTrigger({
+  className,
+  onClick,
+  label = 'Toggle Sidebar',
+  ...props
+}: React.ComponentProps<typeof Button> & { label?: string }) {
+  const { toggleSidebar, mobileTriggerRef, openMobile } = useSidebar()
 
   return (
     <Button
@@ -252,27 +275,32 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       className={cn('size-14', className)}
       onClick={(event) => {
         onClick?.(event)
+        if (!openMobile) mobileTriggerRef.current = event.currentTarget
         toggleSidebar()
       }}
       {...props}
     >
       <SidebarIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">{label}</span>
     </Button>
   )
 }
 
-function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
+function SidebarRail({
+  className,
+  label = 'Toggle Sidebar',
+  ...props
+}: React.ComponentProps<'button'> & { label?: string }) {
   const { toggleSidebar } = useSidebar()
 
   return (
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-label={label}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title={label}
       className={cn(
         'hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-8 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-8 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex',
         'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',

@@ -60,8 +60,9 @@ function SelectContent({
   children,
   position = 'popper',
   align = 'center',
+  emptyText = 'No items',
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+}: React.ComponentProps<typeof SelectPrimitive.Content> & { emptyText?: string }) {
   const isEmpty = React.Children.count(children) === 0
 
   return (
@@ -86,7 +87,7 @@ function SelectContent({
               'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-2'
           )}
         >
-          {isEmpty ? <SelectEmptyContent /> : children}
+          {isEmpty ? <SelectEmptyContent>{emptyText}</SelectEmptyContent> : children}
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />
       </SelectPrimitive.Content>

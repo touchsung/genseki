@@ -34,7 +34,10 @@ declare namespace Intl {
   }
 }
 
+export type DropzoneCaptionOptions = Pick<DropzoneOptions, 'accept' | 'minSize' | 'maxSize'>
+
 interface DropzoneContextType extends DropzoneState {
+  formatCaption?: (options: DropzoneCaptionOptions) => string
   src?: File[]
   previews: { type: string; url: string }[]
   accept?: DropzoneOptions['accept']
@@ -66,6 +69,8 @@ export const [_DropzoneProvider, useDropZone] = createRequiredContext<
   FinalDropzoneContextType
 >('Dropzone context', {
   valueMapper(value) {
+    if (value.formatCaption) return { ...value, caption: value.formatCaption(value) }
+
     let caption = ''
 
     if (value.accept) {
@@ -86,6 +91,7 @@ export const [_DropzoneProvider, useDropZone] = createRequiredContext<
 })
 
 export interface DropzoneProps extends Omit<DropzoneOptions, 'onDrop'> {
+  formatCaption?: (options: DropzoneCaptionOptions) => string
   id?: string
   src: File[]
   previews: { type: string; url: string }[]
@@ -109,6 +115,7 @@ export const DropzoneProvider = ({
   onError,
   disabled,
   children,
+  formatCaption,
   ...props
 }: DropzoneProps) => {
   const dropzoneCtx = useReactDropzone({
@@ -132,6 +139,7 @@ export const DropzoneProvider = ({
 
   return (
     <_DropzoneProvider
+      formatCaption={formatCaption}
       src={src}
       previews={previews}
       accept={accept}
@@ -209,41 +217,6 @@ export type DropzoneContentProps = {
   className?: string
 }
 
-// /**
-//  * @description `DropzoneContent` displays content after user upload media,
-//  * you can pass a children as a custom renderer and empower with `useDropZone`
-//  * hook to access underlying uploaded items data
-//  */
-// export const DropzoneContent = ({ children, className }: DropzoneContentProps) => {
-//   const { previews } = useDropZone()
-
-//   if (previews.length === 0) return null
-
-//   if (children) return children
-
-//   return (
-//     <div className={cn('flex flex-col items-center justify-center', className)}>
-//       {previews?.map(({ type, url }) => (
-//         <Fragment key={url}>
-//           {type.startsWith('image/') ? (
-//             <img src={url} key={url} onLoad={() => URL.revokeObjectURL(url)} />
-//           ) : type.startsWith('video/') ? (
-//             <video controls width="640" height="480" autoPlay>
-//               <source src={url} key={url} type={type} onLoad={() => URL.revokeObjectURL(url)} />
-//             </video>
-//           ) : type.startsWith('audio/') ? (
-//             <audio controls>
-//               <source src={url} key={url} type={type} onLoad={() => URL.revokeObjectURL(url)} />
-//             </audio>
-//           ) : (
-//             <Typography className="text-text-secondary">Unsupported file type</Typography>
-//           )}
-//         </Fragment>
-//       ))}
-//     </div>
-//   )
-// }
-
 export type DropzoneEmptyStateProps = {
   children?: ReactNode
   className?: string
@@ -251,8 +224,11 @@ export type DropzoneEmptyStateProps = {
 
 export const DropZoneEmptyUploadButton = ({
   className,
+  labels,
   ...props
-}: React.ComponentPropsWithRef<typeof Button>) => {
+}: React.ComponentPropsWithRef<typeof Button> & {
+  labels?: { uploadFile?: string; uploadFiles?: string }
+}) => {
   const { maxFiles } = useDropZone()
 
   return (
@@ -266,7 +242,11 @@ export const DropZoneEmptyUploadButton = ({
       children={
         <button>
           <PaperclipIcon />
-          <span>Upload {maxFiles === 1 ? 'a file' : 'files'}</span>
+          <span>
+            {maxFiles === 1
+              ? (labels?.uploadFile ?? 'Upload a file')
+              : (labels?.uploadFiles ?? 'Upload files')}
+          </span>
         </button>
       }
       {...props}
@@ -276,16 +256,19 @@ export const DropZoneEmptyUploadButton = ({
 
 export const DropZoneEmptyUploadDescription = ({
   className,
+  labels,
   ...props
-}: React.ComponentPropsWithRef<typeof Typography>) => {
+}: React.ComponentPropsWithRef<typeof Typography> & {
+  labels?: { clickToUpload?: string; dragAndDrop?: string }
+}) => {
   return (
     <Typography
       weight="medium"
       className={cn('min-w-[270px] text-text-tertiary', className)}
       children={
         <>
-          <span className="text-text-info">Click to upload</span> or drag and drop PNG, JPG, GIF
-          (max. 2MB)
+          <span className="text-text-info">{labels?.clickToUpload ?? 'Click to upload'}</span>{' '}
+          {labels?.dragAndDrop ?? 'or drag and drop PNG, JPG, GIF (max. 2MB)'}
         </>
       }
       {...props}

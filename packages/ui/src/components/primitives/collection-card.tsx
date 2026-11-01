@@ -78,9 +78,11 @@ function CollectionCardTitle({ className, ...props }: React.ComponentProps<'p'>)
 function CollectionCardItemCount({
   className,
   itemNumber,
+  itemLabel = 'items',
   ...props
 }: React.ComponentProps<'div'> & {
   itemNumber: number
+  itemLabel?: string
 }) {
   return (
     <div
@@ -89,7 +91,9 @@ function CollectionCardItemCount({
       {...props}
     >
       <FolderIcon className="text-text-secondary" />
-      <span className="text-sm text-text-secondary">{itemNumber} items</span>
+      <span className="text-sm text-text-secondary">
+        {itemNumber} {itemLabel}
+      </span>
     </div>
   )
 }

@@ -102,7 +102,11 @@ function PaginationNext(props: React.ComponentProps<typeof PaginationLink>) {
   )
 }
 
-function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'>) {
+function PaginationEllipsis({
+  className,
+  label = 'More pages',
+  ...props
+}: React.ComponentProps<'span'> & { label?: string }) {
   return (
     <span
       {...props}
@@ -111,7 +115,7 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'
       data-slot="pagination-ellipsis"
     >
       <DotsThreeIcon className="size-8" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">{label}</span>
     </span>
   )
 }
@@ -123,10 +127,11 @@ type PageSizeSelectProps = Omit<
   value?: number
   onValueChange?: React.Dispatch<number>
   options?: number[]
+  label?: string
   className?: string
 }
 
-function PageSizeSelect({ className, options, ...props }: PageSizeSelectProps) {
+function PageSizeSelect({ className, options, label = 'Show', ...props }: PageSizeSelectProps) {
   const pageSizeOptions = options ?? [10, 20, 50, 100]
 
   const [value, setValue] = useControllableState({
@@ -141,7 +146,7 @@ function PageSizeSelect({ className, options, ...props }: PageSizeSelectProps) {
         <SelectTrigger className={cn('text-text-primary w-72', className)}>
           <div>
             {props.children}
-            <SelectValue aria-label="Show" placeholder="Show" />
+            <SelectValue aria-label={label} placeholder={label} />
           </div>
         </SelectTrigger>
         <SelectContent>
@@ -159,16 +164,21 @@ function PageSizeSelect({ className, options, ...props }: PageSizeSelectProps) {
 interface PageIndexProps extends React.ComponentPropsWithRef<'div'> {
   page: number
   totalPage: number
+  labels?: { page?: string; of?: string }
 }
 
-function PageIndex({ page, totalPage, ...props }: PageIndexProps) {
+function PageIndex({ page, totalPage, labels, ...props }: PageIndexProps) {
   return (
     <div {...props}>
-      <Typography className="text-text-tertiary whitespace-pre-wrap">Page </Typography>
+      <Typography className="text-text-tertiary whitespace-pre-wrap">
+        {labels?.page ?? 'Page'}{' '}
+      </Typography>
       <Typography weight="semibold" className="text-text-primary whitespace-pre-wrap">
         {page}{' '}
       </Typography>
-      <Typography className="text-text-tertiary whitespace-pre-wrap">of </Typography>
+      <Typography className="text-text-tertiary whitespace-pre-wrap">
+        {labels?.of ?? 'of'}{' '}
+      </Typography>
       <Typography weight="semibold" className="text-text-primary">
         {totalPage}
       </Typography>

@@ -276,15 +276,19 @@ export const ColorPickerEyeDropper = ({ className, ...props }: ColorPickerEyeDro
 
 const formats = ['hex', 'rgb', 'css', 'hsl']
 
-export type ColorPickerOutputProps = ComponentProps<typeof SelectTrigger>
+export type ColorPickerOutputProps = ComponentProps<typeof SelectTrigger> & { placeholder?: string }
 
-export const ColorPickerOutput = ({ className, ...props }: ColorPickerOutputProps) => {
+export const ColorPickerOutput = ({
+  className,
+  placeholder = 'Mode',
+  ...props
+}: ColorPickerOutputProps) => {
   const { mode, setMode } = useColorPicker()
 
   return (
     <Select onValueChange={setMode} value={mode}>
       <SelectTrigger className={cn('w-40 shrink-0 ', className)} {...props}>
-        <SelectValue placeholder="Mode" asChild>
+        <SelectValue placeholder={placeholder} asChild>
           <Typography className="text-sm">{mode.toUpperCase()}</Typography>
         </SelectValue>
       </SelectTrigger>

@@ -112,8 +112,10 @@ function _ComboboxPopoverProvider(props: { children?: React.ReactNode }) {
 function ComboboxTriggerMultiValue({
   className,
   children,
+  placeholder = 'Please select item',
   ...props
 }: {
+  placeholder?: string
   children?: ((selectedItem: Item[] | undefined) => React.ReactElement) | React.ReactNode
 } & Omit<React.ComponentPropsWithRef<typeof PopoverTrigger>, 'children'>) {
   const ctx = useCombobox()
@@ -163,7 +165,7 @@ function ComboboxTriggerMultiValue({
         children
       ) : (
         <Button variant="outline" role="combobox">
-          {selectedItems.length > 0 ? renderItems : 'Please select item'}
+          {selectedItems.length > 0 ? renderItems : placeholder}
           <CaretUpDownIcon className="h-8 w-8 shrink-0 opacity-50 absolute right-4 inset-y-0 my-auto" />
         </Button>
       )}
@@ -174,8 +176,10 @@ function ComboboxTriggerMultiValue({
 function ComboboxTrigger({
   className,
   children,
+  placeholder = 'Please select item',
   ...props
 }: {
+  placeholder?: string
   children?: ((selectedItem: Item | undefined) => React.ReactElement) | React.ReactNode
 } & Omit<React.ComponentPropsWithRef<typeof PopoverTrigger>, 'children'>) {
   const ctx = useCombobox()
@@ -206,7 +210,7 @@ function ComboboxTrigger({
         children
       ) : (
         <Button variant="outline" role="combobox">
-          {selectedItem?.label || 'Please select item'}
+          {selectedItem?.label || placeholder}
           <CaretUpDownIcon className="ml-4 h-8 w-8 shrink-0 opacity-50" />
         </Button>
       )}
@@ -239,12 +243,15 @@ function ComboboxContent({
 
 function ComboboxCommandEmpty({
   children,
+  emptyText = 'No framework found',
   className,
   ...props
-}: { children?: React.ReactNode } & React.ComponentPropsWithRef<typeof CommandEmpty>) {
+}: { children?: React.ReactNode; emptyText?: string } & React.ComponentPropsWithRef<
+  typeof CommandEmpty
+>) {
   return (
     <CommandEmpty className={cn('text-muted-foreground', className)} {...props}>
-      {children || 'No framework found'}
+      {children || emptyText}
     </CommandEmpty>
   )
 }

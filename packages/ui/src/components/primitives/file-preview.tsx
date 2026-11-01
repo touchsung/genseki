@@ -70,9 +70,11 @@ function FilePreviewStatus({
   status,
   className,
   classNames,
+  labels,
   ...props
 }: {
   status: 'PENDING' | 'COMPLETED' | 'FAILED'
+  labels?: { pending?: string; completed?: string; failed?: string }
   className?: string
   classNames?: {
     icon?: string
@@ -92,7 +94,7 @@ function FilePreviewStatus({
             weight="medium"
             className={cn('text-text-tertiary', classNames?.text)}
           >
-            Pending
+            {labels?.pending ?? 'Pending'}
           </Typography>
         </>
       )
@@ -110,7 +112,7 @@ function FilePreviewStatus({
             weight="medium"
             className={cn('leading-[85%] text-text-primary', classNames?.text)}
           >
-            Completed
+            {labels?.completed ?? 'Completed'}
           </Typography>
         </>
       )
@@ -128,7 +130,7 @@ function FilePreviewStatus({
             weight="medium"
             className={cn('leading-[85%] text-text-incorrect', classNames?.text)}
           >
-            Failed
+            {labels?.failed ?? 'Failed'}
           </Typography>
         </>
       )
@@ -142,11 +144,18 @@ function FilePreviewStatus({
           weight="medium"
           className={cn('leading-[85%] text-text-tertiary', classNames?.text)}
         >
-          Failed
+          {labels?.failed ?? 'Failed'}
         </Typography>
       </>
     )
-  }, [classNames?.icon, classNames?.text])
+  }, [
+    status,
+    labels?.pending,
+    labels?.completed,
+    labels?.failed,
+    classNames?.icon,
+    classNames?.text,
+  ])
 
   return (
     <div

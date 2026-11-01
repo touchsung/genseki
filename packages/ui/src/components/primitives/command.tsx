@@ -28,12 +28,14 @@ function CommandDialog({
   children,
   className,
   showCloseButton = true,
+  closeLabel,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title?: string
   description?: string
   className?: string
   showCloseButton?: boolean
+  closeLabel?: string
 }) {
   return (
     <Dialog {...props}>
@@ -44,6 +46,7 @@ function CommandDialog({
       <DialogContent
         className={cn('overflow-hidden p-0', className)}
         showCloseButton={showCloseButton}
+        closeLabel={closeLabel}
       >
         <Command className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-24 [&_[cmdk-group-heading]]:px-4 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-4 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-10 [&_[cmdk-input-wrapper]_svg]:w-10 [&_[cmdk-input]]:h-24 [&_[cmdk-item]]:px-4 [&_[cmdk-item]]:py-6 [&_[cmdk-item]_svg]:h-10 [&_[cmdk-item]_svg]:w-10">
           {children}

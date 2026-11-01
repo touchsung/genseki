@@ -24,7 +24,15 @@ export function getSelectedValues<T extends string>(options: FilterOption<T>[]) 
   return options.filter((option) => option.isSelected).map((option) => option.value)
 }
 
+export interface FilterLabels {
+  trigger: string
+  title: string
+  resetAll: string
+  apply: string
+}
+
 export interface FilterProps<T extends FilterOptions = FilterOptions> {
+  labels?: Partial<FilterLabels>
   options: T
   onChange: (options: T) => void
   classNames?: {
@@ -35,7 +43,12 @@ export interface FilterProps<T extends FilterOptions = FilterOptions> {
   }
 }
 
-export function Filter<T extends FilterOptions>({ options, onChange, classNames }: FilterProps<T>) {
+export function Filter<T extends FilterOptions>({
+  options,
+  onChange,
+  classNames,
+  labels,
+}: FilterProps<T>) {
   const [openModal, setOpenModal] = React.useState(false)
   const [internalOptions, setInternalOptions] = React.useState<T>(options)
   const [selectedColumn, setSelectedColumn] = React.useState<string | null>(
@@ -102,7 +115,7 @@ export function Filter<T extends FilterOptions>({ options, onChange, classNames 
             classNames?.trigger
           )}
         >
-          <Typography className="text-icon-tertiary">Filter</Typography>
+          <Typography className="text-icon-tertiary">{labels?.trigger ?? 'Filter'}</Typography>
           <CountBadge count={internalTotalSelected} />
           <SlidersHorizontalIcon className="text-icon-tertiary" />
         </Button>
@@ -110,16 +123,16 @@ export function Filter<T extends FilterOptions>({ options, onChange, classNames 
       <PopoverContent align="end" asChild>
         <div
           className={cn(
-            'w-fit py-6 bg-surface-primary border border-border-primary rounded-xl flex flex-col gap-4 min-w-[600px] h-[436px]',
+            'w-fit py-6 bg-surface-primary border border-border-primary rounded-xl flex flex-col gap-4 min-w-[min(600px,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] h-[436px]',
             classNames?.content
           )}
         >
           <Typography type="h4" weight="bold" className="px-6 text-lg w-full">
-            Apply Filters
+            {labels?.title ?? 'Apply Filters'}
           </Typography>
 
           <div className="flex items-start gap-6 w-full px-6 flex-1 min-h-0">
-            <ul className="min-w-[230px] overflow-auto h-full">
+            <ul className="min-w-0 w-2/5 sm:w-auto sm:min-w-[230px] overflow-auto h-full">
               {columns.map((column) => (
                 <li
                   key={column}
@@ -141,7 +154,7 @@ export function Filter<T extends FilterOptions>({ options, onChange, classNames 
 
             <ul
               className={cn(
-                'flex-1 h-full border border-border-primary p-3 rounded-lg overflow-y-auto',
+                'flex-1 min-w-0 h-full border border-border-primary p-3 rounded-lg overflow-y-auto',
                 classNames?.selectValue
               )}
             >
@@ -175,9 +188,9 @@ export function Filter<T extends FilterOptions>({ options, onChange, classNames 
           <div className="w-full px-6 pt-4 border-t flex items-center justify-end gap-2 border-border-primary">
             <Button variant="outline" onClick={reset} disabled={internalTotalSelected === 0}>
               <TrashIcon />
-              <Typography>Reset All</Typography>
+              <Typography>{labels?.resetAll ?? 'Reset All'}</Typography>
             </Button>
-            <Button onClick={apply}>Apply</Button>
+            <Button onClick={apply}>{labels?.apply ?? 'Apply'}</Button>
           </div>
         </div>
       </PopoverContent>
